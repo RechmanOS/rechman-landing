@@ -8,8 +8,10 @@ export default defineConfig({
   output: 'server',
   adapter: node({
     mode: 'standalone',
-    host: '0.0.0.0', // Принудительно слушаем все интерфейсы для ONREZA
   }),
+  server: {
+    host: true, // Принудительно слушаем все интерфейсы (0.0.0.0)
+  },
   vite: {
     plugins: [tailwindcss()]
   }
