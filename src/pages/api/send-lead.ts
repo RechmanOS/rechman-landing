@@ -6,12 +6,12 @@ export const POST: APIRoute = async ({ request }) => {
     const body = await request.json();
     const { name, contact, company } = body;
 
-    // Берем токен из переменных окружения (Astro)
-    const TG_TOKEN = import.meta.env.TG_TOKEN;
-    const TG_CHAT_ID = import.meta.env.TG_CHAT_ID;
+    // В SSR-режиме на Node.js переменные окружения читаются через process.env
+    const TG_TOKEN = process.env.TG_TOKEN;
+    const TG_CHAT_ID = process.env.TG_CHAT_ID;
 
     if (!TG_TOKEN || !TG_CHAT_ID) {
-      console.error('ОШИБКА: Переменные TG_TOKEN или TG_CHAT_ID не найдены!');
+      console.error('ОШИБКА: Переменные TG_TOKEN или TG_CHAT_ID не найдены в process.env!');
       return new Response(JSON.stringify({ error: 'Секретные данные не настроены' }), { status: 500 });
     }
 
