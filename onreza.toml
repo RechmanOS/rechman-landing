@@ -1,3 +1,4 @@
 [deploy]
+compute = "process"
 runtime = "node"
 entry = "server.mjs"
