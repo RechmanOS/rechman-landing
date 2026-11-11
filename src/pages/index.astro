@@ -1,0 +1,243 @@
+---
+import '../styles/global.css';
+
+// --- БЛОК ДАННЫХ ---
+const fundamentals = [
+	{ id: 1, title: "Концептуальный сдвиг", desc: "Переход от схемы «люди управляют процессами» к схеме «RECHMAN OS — беспристрастный Автономный Операционный Руководитель».", video: "/videos/fund1.mp4" },
+	{ id: 2, title: "Мягкое внедрение", desc: "Принцип «не навреди». Внедрение без отвлечения сотрудников, без консультантов, подстройка под текущие регламенты.", video: "/videos/fund2.mp4" },
+	{ id: 3, title: "Независимость от людей", desc: "Знания и цепочки хранятся не в головах, а в системе. Уход ключевого специалиста не останавливает бизнес.", video: "/videos/fund3.mp4" },
+	{ id: 4, title: "Онбординг за 1 день", desc: "Новички не сжигают лиды. Система ведет их за руку по пошаговому пайплайн-чеклисту.", video: "/videos/fund4.mp4" },
+	{ id: 5, title: "Объективный арбитр", desc: "100% цифровых следов. Любой спор разбирается мгновенно на основе данных, а не эмоций.", video: "/videos/fund5.mp4" },
+	{ id: 6, title: "Реальный KPI", desc: "Хронометраж всех действий. Мгновенно подсвечивает реальный результат, скрытые простои и перегрузки.", video: "/videos/fund6.mp4" },
+	{ id: 7, title: "Голосовой ввод", desc: "Voice-to-Text. Надиктовывание команд на живом языке. Система сама определяет контекст задачи.", video: "/videos/fund7.mp4" },
+	{ id: 8, title: "Самообучение", desc: "Система задает вопросы для выявления регламентов достижения цели и внедряет их для дальнейшей работы.", video: "/videos/fund8.mp4" },
+	{ id: 9, title: "Наглядный вывод", desc: "Текстовые дашборды, карточки, таблицы, графики и пуш-уведомления. Понимает речь, но общается строгим текстом.", video: "/videos/fund9.mp4" },
+	{ id: 10, title: "100% On-Premise", desc: "Локальное развертывание SOFT+HARD. Данные не уходят в облака. Автоматический откат при сбоях.", video: "/videos/fund10.mp4" },
+	{ id: 11, title: "Авторизация по HWID", desc: "Доступ только с доверенных устройств Whitelist. Шифрование по ГОСТ, песочница для данных.", video: "/videos/fund11.mp4" },
+	{ id: 12, title: "Работа с подрядчиками", desc: "Отдельные кабинеты для внешних сотрудников: таймлайны, задачи, акты, штрафы за просрочки.", video: "/videos/fund12.mp4" },
+	{ id: 13, title: "Бесшовность с 1С", desc: "Интеграция без нарушения кода 1С. После внедрения возможен полный отказ от 1С.", video: "/videos/fund13.mp4" },
+	{ id: 14, title: "Глубокая аналитика", desc: "Поиск узких мест и оптимизация процессов. Повышение производительности минимум на 50%.", video: "/videos/fund14.mp4" },
+	{ id: 15, title: "Две сущности", desc: "Помогающая (снабжает всем необходимым) и контролирующая (удерживает в таймлайне). Гибкая настройка жесткости.", video: "/videos/fund15.mp4" }
+];
+
+const roles = [
+	{ icon: "👑", title: "CEO", desc: "Получение любого отчета за секунды голосом. Внедрение новых регламентов просто надиктовав поручение." },
+	{ icon: "👨‍💻", title: "Сотрудники", desc: "Внесение данных голосом или фото документов. Составление договоров, счетов и смет голосом." },
+	{ icon: "📦", title: "Склад", desc: "Адресное хранение, FEFO, остатки, инвентаризация. Работа с маркировкой, QR-кодами. OCR-сканер документов." },
+	{ icon: "💰", title: "Фин. директор", desc: "Анализ выплат, дебиторки, ФОТ. Пошаговый план спасения при кассовых разрывах. Расчет налогов." },
+	{ icon: "📞", title: "Менеджеры по продажам", desc: "Невидимый наставник во время звонка. Подсказки, ответы на возражения, выгодные предложения." },
+	{ icon: "📊", title: "РОП", desc: "Разбор каждого звонка по смысловым блокам. Проверка стандартов, реперных точек. Отчеты за секунды." },
+	{ icon: "🛒", title: "Менеджер по закупкам", desc: "Сбор лучших цен, обзвон поставщиков по скриптам, сверки. Автозаказ сырья на основе динамики продаж." },
+	{ icon: "📑", title: "Тендерный отдел", desc: "Поиск выгодных закупок на площадках, аудит шансов. Подготовка документации по ГОСТ и ФЗ." },
+	{ icon: "⚖️", title: "Юридический отдел", desc: "Подготовка документов по ГОСТ/ISO. Прогон договоров через арбитражную практику, подсветка рисков." },
+	{ icon: "🤝", title: "HR специалист", desc: "Авторасчет премий, анализ хронометража. Обучение новичков, поиск сотрудников, собеседования." },
+	{ icon: "⚙️", title: "Доработки", desc: "Любые кастомные задачи: CAE/CAD, PLM, ЧПУ, ОТК, R&D, патентный поиск, ISO 9001." }
+];
+---
+
+<html lang="ru">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>Rechman OS — Автономный Операционный Руководитель</title>
+	</head>
+	<body class="bg-slate-900 text-white font-sans min-h-screen flex flex-col m-0 selection:bg-blue-500 selection:text-white">
+		
+		<!-- Шапка сайта -->
+		<header class="flex justify-between items-center p-6 border-b border-slate-700 bg-slate-900/80 backdrop-blur sticky top-0 z-40">
+			<h2 class="text-2xl font-bold tracking-widest text-blue-400">RECHMAN OS</h2>
+			<nav class="space-x-6 text-sm font-medium text-slate-300">
+				<a href="#fundamentals" class="hover:text-blue-400 transition-colors">Философия</a>
+				<a href="#roles" class="hover:text-blue-400 transition-colors">Для кого</a>
+				<a href="#contact" class="hover:text-blue-400 transition-colors">Демо</a>
+			</nav>
+		</header>
+
+		<main class="flex-grow flex flex-col items-center p-6 space-y-24 pb-20">
+			
+			<!-- Главный экран -->
+			<section class="max-w-4xl text-center space-y-8 pt-10">
+				<h1 class="text-5xl md:text-7xl font-extrabold leading-tight">
+					Автономный <br />
+					<span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400">
+						Операционный Руководитель
+					</span>
+				</h1>
+				<p class="text-lg text-slate-400 max-w-2xl mx-auto mb-6">
+					RECHMAN OS — беспристрастный дирижер процессов. Люди четко выполняют функции по фиксированному пайплайну.
+				</p>
+				<a href="#contact" class="inline-block bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-8 rounded-full shadow-lg shadow-blue-500/30 transition-all hover:-translate-y-1">
+					Запросить демонстрацию
+				</a>
+			</section>
+
+			<!-- БЛОК 1: ФУНДАМЕНТАЛЬНЫЕ ОСНОВЫ -->
+			<section id="fundamentals" class="w-full max-w-6xl scroll-mt-24">
+				<h2 class="text-3xl font-bold mb-10 text-center text-slate-200">Философия и фундамент</h2>
+				
+				<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+					{fundamentals.map((item) => (
+						<div class="bg-slate-800 rounded-xl p-6 border border-slate-700 flex flex-col justify-between hover:border-blue-500 transition-colors shadow-lg">
+							<div>
+								<div class="text-blue-400 font-bold mb-2">0{item.id}</div>
+								<h3 class="text-xl font-bold mb-3">{item.title}</h3>
+								<p class="text-slate-400 text-sm mb-6">{item.desc}</p>
+							</div>
+							<button onclick={`openVideo('${item.video}')`} class="bg-slate-700 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg w-full transition-colors flex items-center justify-center gap-2">
+								▶ Смотреть видео
+							</button>
+						</div>
+					))}
+				</div>
+			</section>
+
+			<!-- БЛОК 2: КАРУСЕЛЬ РОЛЕЙ -->
+			<section id="roles" class="w-full max-w-6xl scroll-mt-24">
+				<h2 class="text-3xl font-bold mb-10 text-center text-slate-200">Польза для бизнеса</h2>
+				
+				<div class="flex overflow-x-auto snap-x snap-mandatory gap-6 pb-8 px-4" style="scrollbar-width: thin; scrollbar-color: #475569 #1e293b;">
+					{roles.map((role) => (
+						<div class="snap-center shrink-0 w-72 bg-slate-800 rounded-xl p-6 border border-slate-700 flex flex-col items-center text-center cursor-pointer hover:bg-slate-700 hover:-translate-y-2 transition-all duration-300 shadow-lg" 
+						     onclick={`openRole('${role.title}', '${role.desc.replace(/'/g, "\\'")}')`}>
+							<div class="text-5xl mb-4">{role.icon}</div>
+							<h3 class="text-xl font-bold mb-2 text-slate-100">{role.title}</h3>
+							<p class="text-slate-400 text-sm mb-4 line-clamp-3">{role.desc}</p>
+							<span class="text-blue-400 text-sm font-medium mt-auto">Читать полностью →</span>
+						</div>
+					))}
+				</div>
+			</section>
+
+			<!-- БЛОК 3: ФОРМА СБОРА ЗАЯВОК -->
+			<section id="contact" class="w-full max-w-2xl scroll-mt-24 bg-slate-800 p-8 rounded-2xl border border-slate-700 shadow-2xl">
+				<div class="text-center mb-8">
+					<h2 class="text-3xl font-bold mb-2 text-slate-100">Запросить демонстрацию</h2>
+					<p class="text-slate-400">Оставьте контакты, и мы покажем вам возможности системы.</p>
+				</div>
+				
+				<form id="leadForm" class="space-y-4">
+					<div>
+						<label class="block text-sm font-medium text-slate-300 mb-1">Ваше имя</label>
+						<input type="text" required class="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors" placeholder="Иван Иванов" />
+					</div>
+					<div>
+						<label class="block text-sm font-medium text-slate-300 mb-1">Телефон или Email</label>
+						<input type="text" required class="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors" placeholder="+7 (999) 123-45-67" />
+					</div>
+					<div>
+						<label class="block text-sm font-medium text-slate-300 mb-1">Компания</label>
+						<input type="text" class="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors" placeholder="ООО Ромашка" />
+					</div>
+					<button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-4 rounded-lg shadow-lg shadow-emerald-500/30 transition-all mt-4">
+						Отправить заявку
+					</button>
+				</form>
+			</section>
+
+		</main>
+
+		<!-- МОДАЛЬНЫЕ ОКНА -->
+		<dialog id="videoModal" class="backdrop:bg-black/80 bg-transparent p-0 m-auto w-full max-w-4xl rounded-xl overflow-hidden shadow-2xl">
+			<div class="bg-slate-900 border border-slate-700 p-2 sm:p-4 relative">
+				<button onclick="closeVideo()" class="absolute top-4 right-4 text-white hover:text-red-400 font-bold text-xl z-10 bg-black/50 w-10 h-10 rounded-full flex items-center justify-center transition-colors">✕</button>
+				<video id="videoPlayer" controls class="w-full rounded-lg aspect-video bg-black">
+					<source id="videoSource" src="" type="video/mp4">
+				</video>
+			</div>
+		</dialog>
+
+		<dialog id="roleModal" class="backdrop:bg-black/80 bg-transparent p-0 m-auto w-full max-w-lg rounded-xl overflow-hidden shadow-2xl">
+			<div class="bg-slate-800 border border-slate-600 p-8 relative rounded-xl">
+				<button onclick="closeRole()" class="absolute top-4 right-4 text-slate-400 hover:text-white font-bold text-xl transition-colors">✕</button>
+				<h3 id="roleTitle" class="text-2xl font-bold mb-4 text-blue-400">Название роли</h3>
+				<p id="roleDesc" class="text-slate-300 leading-relaxed text-lg">Описание роли...</p>
+			</div>
+		</dialog>
+
+		<!-- Подвал -->
+		<footer class="p-6 text-center text-sm text-slate-500 border-t border-slate-800">
+			<p>© 2026 RECHMAN OS. Все права защищены.</p>
+		</footer>
+
+		<!-- СКРИПТЫ -->
+		<script>
+			// --- Логика модальных окон ---
+			const videoModal = document.getElementById('videoModal');
+			const videoPlayer = document.getElementById('videoPlayer');
+			const videoSource = document.getElementById('videoSource');
+
+			window.openVideo = (path) => {
+				videoSource.src = path; 
+				videoPlayer.load(); 
+				videoModal.showModal(); 
+			};
+			
+			window.closeVideo = () => {
+				videoModal.close();
+				videoPlayer.pause();
+				videoPlayer.currentTime = 0;
+			};
+
+			const roleModal = document.getElementById('roleModal');
+			const roleTitle = document.getElementById('roleTitle');
+			const roleDesc = document.getElementById('roleDesc');
+
+			window.openRole = (title, desc) => {
+				roleTitle.textContent = title;
+				roleDesc.textContent = desc;
+				roleModal.showModal();
+			};
+			
+			window.closeRole = () => { roleModal.close(); };
+
+
+			// --- Логика формы (Отправка в Telegram) ---
+			
+			// 👇 ВСТАВЬТЕ СВОИ ДАННЫЕ СЮДА (между кавычками):
+			const TG_TOKEN = '9045639462:AAE7p0TnKtzwcMimZJGc_y_wSmV2lEORCLU'; 
+			const TG_CHAT_ID = '219529547'; 
+
+			const leadForm = document.getElementById('leadForm');
+			const submitBtn = leadForm.querySelector('button[type="submit"]');
+
+			leadForm.addEventListener('submit', async (e) => {
+				e.preventDefault(); 
+				
+				const originalText = submitBtn.textContent;
+				submitBtn.textContent = 'Отправка...';
+				submitBtn.disabled = true;
+
+				const name = leadForm.querySelector('input[type="text"]').value;
+				const contact = leadForm.querySelectorAll('input[type="text"]')[1].value; 
+				const companyInput = leadForm.querySelectorAll('input[type="text"]')[2];
+				const company = companyInput ? companyInput.value : 'Не указана';
+
+				const message = `🔥 <b>Новая заявка с сайта!</b>\n\n👤 <b>Имя:</b> ${name}\n📞 <b>Контакт:</b> ${contact}\n🏢 <b>Компания:</b> ${company}`;
+
+				try {
+					const response = await fetch(`https://api.telegram.org/bot${TG_TOKEN}/sendMessage`, {
+						method: 'POST',
+						headers: { 'Content-Type': 'application/json' },
+						body: JSON.stringify({
+							chat_id: TG_CHAT_ID,
+							text: message,
+							parse_mode: 'HTML'
+						})
+					});
+
+					if (response.ok) {
+						alert('Спасибо! Ваша заявка отправлена. Мы свяжемся с вами в ближайшее время.');
+						leadForm.reset(); 
+					} else {
+						alert('Ошибка при отправке. Пожалуйста, проверьте токен и ID.');
+					}
+				} catch (error) {
+					alert('Ошибка сети. Пожалуйста, проверьте интернет.');
+				} finally {
+					submitBtn.textContent = originalText;
+					submitBtn.disabled = false;
+				}
+			});
+		</script>
+	</body>
+</html>
