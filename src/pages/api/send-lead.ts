@@ -2,16 +2,25 @@
 import type { APIRoute } from 'astro';
 
 export const POST: APIRoute = async ({ request }) => {
+  // --- БЛОК ОТЛАДКИ ---
+  console.log('--- НАЧАЛО ОБРАБОТКИ ЗАПРОСА ---');
+  console.log('Доступные переменные окружения (process.env):', {
+    TG_TOKEN: !!process.env.TG_TOKEN,
+    TG_CHAT_ID: !!process.env.TG_CHAT_ID,
+    HOST: process.env.HOST,
+    PORT: process.env.PORT,
+  });
+  // --------------------
+
   try {
     const body = await request.json();
     const { name, contact, company } = body;
 
-    // В SSR-режиме на Node.js переменные окружения читаются через process.env
     const TG_TOKEN = process.env.TG_TOKEN;
     const TG_CHAT_ID = process.env.TG_CHAT_ID;
 
     if (!TG_TOKEN || !TG_CHAT_ID) {
-      console.error('ОШИБКА: Переменные TG_TOKEN или TG_CHAT_ID не найдены в process.env!');
+      console.error('КРИТИЧЕСКАЯ ОШИБКА: Переменные TG_TOKEN или TG_CHAT_ID не найдены в process.env!');
       return new Response(JSON.stringify({ error: 'Секретные данные не настроены' }), { status: 500 });
     }
 
