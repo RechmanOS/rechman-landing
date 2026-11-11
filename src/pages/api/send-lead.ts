@@ -6,9 +6,9 @@ export const POST: APIRoute = async ({ request }) => {
     const body = await request.json();
     const { name, contact, company } = body;
 
-    // Берем данные из системного окружения сервера ONREZA
-    const TG_TOKEN = process.env.TG_TOKEN;
-    const TG_CHAT_ID = process.env.TG_CHAT_ID;
+    // Используем import.meta.env для доступа к переменным окружения
+    const TG_TOKEN = import.meta.env.TG_TOKEN;
+    const TG_CHAT_ID = import.meta.env.TG_CHAT_ID;
 
     if (!TG_TOKEN || !TG_CHAT_ID) {
       console.error('Переменные окружения не найдены!');
