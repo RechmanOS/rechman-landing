@@ -240,7 +240,6 @@ const roles = [
 				mySwiper.autoplay.start();
 			});
 
-
 			// --- Логика формы (Отправка через безопасный API) ---
 			const leadForm = document.getElementById('leadForm');
 			const submitBtn = leadForm.querySelector('button[type="submit"]');
@@ -264,14 +263,17 @@ const roles = [
 						body: JSON.stringify({ name, contact, company })
 					});
 
+					const data = await response.json(); // Читаем ответ от сервера
+
 					if (response.ok) {
 						alert('Спасибо! Ваша заявка отправлена. Мы свяжемся с вами в ближайшее время.');
 						leadForm.reset(); 
 					} else {
-						alert('Ошибка при отправке. Пожалуйста, попробуйте позже.');
+						// ПОКАЗЫВАЕМ ТОЧНУЮ ОШИБКУ НА ЭКРАНЕ
+						alert('ОШИБКА: ' + (data.error || 'Неизвестная ошибка'));
 					}
 				} catch (error) {
-					alert('Ошибка сети. Пожалуйста, проверьте интернет.');
+					alert('Ошибка сети: ' + error.message);
 				} finally {
 					submitBtn.textContent = originalText;
 					submitBtn.disabled = false;
