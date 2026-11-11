@@ -1,12 +1,13 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
 import tailwindcss from '@tailwindcss/vite';
+import node from '@astrojs/node';
 
-// https://astro.build/config
 export default defineConfig({
-  // Включаем серверный режим, ONREZA сама настроит сборку
-  output: 'server',
-
+  output: 'server', // Включаем серверный рендеринг
+  adapter: node({
+    mode: 'standalone', // Этот режим подходит для платформ вроде ONREZA
+  }),
   vite: {
     plugins: [tailwindcss()]
   }
