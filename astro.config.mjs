@@ -7,11 +7,8 @@ import node from '@astrojs/node';
 export default defineConfig({
   output: 'server',
   adapter: node({
-    mode: 'standalone',
+    mode: 'middleware', // Меняем standalone на middleware
   }),
-  server: {
-    host: true, // Принудительно слушаем все интерфейсы (0.0.0.0)
-  },
   vite: {
     plugins: [tailwindcss()]
   }
