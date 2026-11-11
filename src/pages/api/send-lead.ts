@@ -6,12 +6,12 @@ export const POST: APIRoute = async ({ request }) => {
     const body = await request.json();
     const { name, contact, company } = body;
 
-    // Используем import.meta.env для доступа к переменным окружения
+    // Берем токен из переменных окружения (Astro)
     const TG_TOKEN = import.meta.env.TG_TOKEN;
     const TG_CHAT_ID = import.meta.env.TG_CHAT_ID;
 
     if (!TG_TOKEN || !TG_CHAT_ID) {
-      console.error('Переменные окружения не найдены!');
+      console.error('ОШИБКА: Переменные TG_TOKEN или TG_CHAT_ID не найдены!');
       return new Response(JSON.stringify({ error: 'Секретные данные не настроены' }), { status: 500 });
     }
 
@@ -28,12 +28,14 @@ export const POST: APIRoute = async ({ request }) => {
     });
 
     if (!response.ok) {
+      console.error('ОШИБКА TELEGRAM API:', await response.text());
       throw new Error('Telegram API error');
     }
 
+    console.log('УСПЕХ: Заявка отправлена в Telegram');
     return new Response(JSON.stringify({ success: true }), { status: 200 });
   } catch (error) {
-    console.error('Общая ошибка:', error);
+    console.error('ОШИБКА СЕРВЕРА:', error);
     return new Response(JSON.stringify({ error: 'Внутренняя ошибка' }), { status: 500 });
   }
 };
