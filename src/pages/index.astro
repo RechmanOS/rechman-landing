@@ -43,48 +43,104 @@ const roles = [
 		<link rel="icon" type="image/png" href="/favicon.png" />
 		<title>Rechman OS — Автономный Операционный Руководитель</title>
 		<style>
-			dialog[open] {
-				animation: modal-pop 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+			/* Анимация плавного появления окна */
+			dialog[open] { animation: modal-pop 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+			@keyframes modal-pop { from { opacity: 0; transform: scale(0.9) translateY(20px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+			dialog::backdrop { background-color: rgba(15, 23, 42, 0.8); backdrop-filter: blur(4px); }
+
+			/* Стили для парящих иконок поверх видео */
+			.hero-icon {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				width: 60px;
+				height: 60px;
+				background: rgba(30, 41, 59, 0.8);
+				backdrop-filter: blur(8px);
+				border-radius: 16px;
+				font-size: 30px;
+				box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.5);
+				border: 1px solid rgba(59, 130, 246, 0.3);
+				will-change: transform, opacity;
+				opacity: 0; 
+				transform: translateY(20px);
+				transition: opacity 0.6s ease, transform 0.6s ease;
+				animation: float 4s ease-in-out infinite;
 			}
-			@keyframes modal-pop {
-				from { opacity: 0; transform: scale(0.9) translateY(20px); }
-				to { opacity: 1; transform: scale(1) translateY(0); }
+			
+			.hero-icon.visible {
+				opacity: 1;
+				transform: translateY(0);
 			}
-			dialog::backdrop {
-				background-color: rgba(15, 23, 42, 0.8);
-				backdrop-filter: blur(4px);
+
+			@media (min-width: 768px) {
+				.hero-icon { width: 80px; height: 80px; font-size: 40px; border-radius: 24px; }
+			}
+			@keyframes float {
+				0% { transform: translateY(0px); }
+				50% { transform: translateY(-15px); }
+				100% { transform: translateY(0px); }
+			}
+
+			/* Добавляем свечение для логотипа, чтобы темный текст был виден */
+			.logo-glow {
+				filter: drop-shadow(0px 0px 20px rgba(59, 130, 246, 0.6)) drop-shadow(0px 0px 40px rgba(59, 130, 246, 0.3));
 			}
 		</style>
 	</head>
 	<body class="bg-slate-900 text-white font-sans min-h-screen flex flex-col m-0 selection:bg-blue-500 selection:text-white">
 		
-		<header class="flex justify-between items-center p-6 border-b border-slate-700 bg-slate-900/80 backdrop-blur sticky top-0 z-40">
-			<h2 class="text-2xl font-bold tracking-widest text-blue-400">RECHMAN OS</h2>
-			<nav class="space-x-6 text-sm font-medium text-slate-300">
-				<a href="#fundamentals" class="hover:text-blue-400 transition-colors">Философия</a>
-				<a href="#roles" class="hover:text-blue-400 transition-colors">Для кого</a>
-				<a href="#contact" class="hover:text-blue-400 transition-colors">Демо</a>
-			</nav>
-		</header>
-
-		<main class="flex-grow flex flex-col items-center p-6 space-y-24 pb-20">
+		<main class="flex-grow flex flex-col items-center p-0 m-0 space-y-0 pb-20">
 			
-			<section class="max-w-4xl text-center space-y-8 pt-10">
-				<h1 class="text-5xl md:text-7xl font-extrabold leading-tight">
-					Автономный <br />
-					<span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400">
-						Операционный Руководитель
-					</span>
-				</h1>
-				<p class="text-lg text-slate-400 max-w-2xl mx-auto mb-6">
-					RECHMAN OS — беспристрастный дирижер процессов. Люди четко выполняют функции по фиксированному пайплайну.
-				</p>
-				<a href="#contact" class="inline-block bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-8 rounded-full shadow-lg shadow-blue-500/30 transition-all hover:-translate-y-1">
-					Запросить демонстрацию
-				</a>
+			<!-- ГЛАВНЫЙ ЭКРАН (Кинотеатр с вертикальным видео) -->
+			<section class="relative w-full h-[100svh] overflow-hidden bg-slate-950 flex items-center justify-center">
+				
+				<!-- Контейнер для видео формата 9:16 -->
+				<div class="relative w-full h-full md:h-[100svh] md:w-auto md:aspect-[9/16] overflow-hidden bg-slate-950 shadow-2xl">
+					
+					<!-- Само видео -->
+					<video 
+						id="heroVideo" 
+						class="absolute inset-0 w-full h-full object-cover opacity-70" 
+						playsinline 
+						muted 
+						autoplay
+						poster="https://images.unsplash.com/photo-1519389950473-47ba0277781c?q=80&w=1920&auto=format&fit=crop"
+						src="/videos/hero.mp4">
+					</video>
+
+					<!-- Иконки -->
+					<div class="absolute inset-0 pointer-events-none z-10">
+						<div id="icon1" class="hero-icon absolute top-[20%] left-[10%]">📊</div>
+						<div id="icon2" class="hero-icon absolute top-[30%] right-[10%]">🧠</div>
+						<div id="icon3" class="hero-icon absolute bottom-[35%] left-[15%]">🎙️</div>
+						<div id="icon4" class="hero-icon absolute bottom-[25%] right-[15%]">⚙️</div>
+					</div>
+
+					<!-- Блюр -->
+					<div id="heroBlur" class="absolute inset-0 bg-slate-900/0 backdrop-blur-none transition-all duration-1000 z-20 pointer-events-none"></div>
+
+					<!-- Логотип и текст -->
+					<div id="heroLogo" class="absolute inset-0 flex flex-col items-center justify-center opacity-0 transition-opacity duration-1000 z-30 pointer-events-none px-4 text-center">
+						<!-- Логотип увеличен до 600px -->
+						<img src="/logo.png" alt="RECHMAN OS" class="logo-glow w-[95%] max-w-[600px] object-contain mb-4" />
+						
+						<!-- Основной подзаголовок -->
+						<p class="text-sm md:text-lg text-slate-200 font-medium tracking-widest uppercase">
+							Автономный операционный руководитель
+						</p>
+						
+						<!-- Новая строка -->
+						<p class="text-xs md:text-base text-slate-300 mt-2 font-medium tracking-widest uppercase">
+							Управление голосом
+						</p>
+					</div>
+
+				</div>
 			</section>
 
-			<section id="fundamentals" class="w-full max-w-6xl scroll-mt-24">
+			<!-- БЛОК 1: ФУНДАМЕНТАЛЬНЫЕ ОСНОВЫ -->
+			<section id="fundamentals" class="w-full max-w-6xl scroll-mt-24 px-6 mt-24">
 				<h2 class="text-3xl font-bold mb-10 text-center text-slate-200">Философия и фундамент</h2>
 				
 				<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -103,7 +159,8 @@ const roles = [
 				</div>
 			</section>
 
-			<section id="roles" class="w-full max-w-6xl scroll-mt-24 overflow-hidden">
+			<!-- БЛОК 2: БЕСКОНЕЧНАЯ КАРУСЕЛЬ РОЛЕЙ -->
+			<section id="roles" class="w-full max-w-6xl scroll-mt-24 overflow-hidden mt-24 px-6">
 				<h2 class="text-3xl font-bold mb-10 text-center text-slate-200">Польза для бизнеса</h2>
 				
 				<div class="swiper mySwiper pb-12">
@@ -123,7 +180,8 @@ const roles = [
 				</div>
 			</section>
 
-			<section id="contact" class="w-full max-w-2xl scroll-mt-24 bg-slate-800 p-8 rounded-2xl border border-slate-700 shadow-2xl">
+			<!-- БЛОК 3: ФОРМА СБОРА ЗАЯВОК -->
+			<section id="contact" class="w-full max-w-2xl scroll-mt-24 bg-slate-800 p-8 rounded-2xl border border-slate-700 shadow-2xl mt-24 mx-6">
 				<div class="text-center mb-8">
 					<h2 class="text-3xl font-bold mb-2 text-slate-100">Запросить демонстрацию</h2>
 					<p class="text-slate-400">Оставьте контакты, и мы покажем вам возможности системы.</p>
@@ -150,6 +208,7 @@ const roles = [
 
 		</main>
 
+		<!-- МОДАЛЬНЫЕ ОКНА -->
 		<dialog id="videoModal" class="bg-transparent p-0 m-auto w-full max-w-4xl rounded-xl overflow-hidden shadow-2xl">
 			<div class="bg-slate-900 border border-slate-700 p-2 sm:p-4 relative">
 				<button onclick="closeVideo()" class="absolute top-4 right-4 text-white hover:text-red-400 font-bold text-xl z-10 bg-black/50 w-10 h-10 rounded-full flex items-center justify-center transition-colors">✕</button>
@@ -175,6 +234,55 @@ const roles = [
 
 		<script>
 			// @ts-nocheck
+			// --- Логика видео-презентации ---
+			const heroVideo = document.getElementById('heroVideo');
+			const icons = [
+				document.getElementById('icon1'),
+				document.getElementById('icon2'),
+				document.getElementById('icon3'),
+				document.getElementById('icon4')
+			];
+			const heroBlur = document.getElementById('heroBlur');
+			const heroLogo = document.getElementById('heroLogo');
+
+			if (heroVideo) {
+				// Блокировка повторного воспроизведения при скролле
+				let hasPlayed = false;
+				heroVideo.addEventListener('play', () => {
+					if (hasPlayed) heroVideo.pause();
+					hasPlayed = true;
+				});
+
+				heroVideo.play().catch(e => console.log("Autoplay blocked:", e));
+
+				heroVideo.addEventListener('timeupdate', () => {
+					const time = heroVideo.currentTime;
+
+					if (time >= 3.0) icons[0].classList.add('visible');
+					if (time >= 3.5) icons[1].classList.add('visible');
+					if (time >= 4.0) icons[2].classList.add('visible');
+					if (time >= 4.5) icons[3].classList.add('visible');
+
+					if (time >= 6.0) {
+						heroBlur.classList.remove('bg-slate-900/0', 'backdrop-blur-none');
+						heroBlur.classList.add('bg-slate-900/60', 'backdrop-blur-md');
+					}
+
+					if (time >= 8.0) {
+						heroLogo.classList.remove('opacity-0');
+						heroLogo.classList.add('opacity-100');
+					}
+				});
+
+				heroVideo.addEventListener('ended', () => {
+					icons.forEach(icon => icon.classList.add('visible'));
+					heroBlur.classList.remove('bg-slate-900/0', 'backdrop-blur-none');
+					heroBlur.classList.add('bg-slate-900/60', 'backdrop-blur-md');
+					heroLogo.classList.remove('opacity-0');
+					heroLogo.classList.add('opacity-100');
+				});
+			}
+
 			// --- Инициализация Swiper ---
 			import Swiper from 'swiper';
 			import { Autoplay, Pagination } from 'swiper/modules';
@@ -185,19 +293,9 @@ const roles = [
 				slidesPerView: 1,
 				spaceBetween: 24,
 				grabCursor: true,
-				autoplay: {
-					delay: 3000,
-					disableOnInteraction: false,
-				},
-				pagination: {
-					el: '.swiper-pagination',
-					clickable: true,
-				},
-				breakpoints: {
-					640: { slidesPerView: 1 },
-					768: { slidesPerView: 2 },
-					1024: { slidesPerView: 3 },
-				}
+				autoplay: { delay: 3000, disableOnInteraction: false },
+				pagination: { el: '.swiper-pagination', clickable: true },
+				breakpoints: { 640: { slidesPerView: 1 }, 768: { slidesPerView: 2 }, 1024: { slidesPerView: 3 } }
 			});
 
 			// --- Логика модальных окон ---
@@ -216,7 +314,6 @@ const roles = [
 				videoPlayer.currentTime = 0;
 			};
 
-			// --- Логика окна Ролей (с паузой карусели) ---
 			const roleModal = document.getElementById('roleModal');
 			const roleIcon = document.getElementById('roleIcon');
 			const roleTitle = document.getElementById('roleTitle');
@@ -226,7 +323,6 @@ const roles = [
 				roleIcon.textContent = icon;
 				roleTitle.textContent = title;
 				roleDesc.textContent = desc;
-				
 				mySwiper.autoplay.stop(); 
 				roleModal.showModal();
 			};
@@ -240,7 +336,7 @@ const roles = [
 				mySwiper.autoplay.start();
 			});
 
-			// --- Логика формы (Отправка через безопасный API) ---
+			// --- Логика формы (Безопасная отправка) ---
 			const leadForm = document.getElementById('leadForm');
 			const submitBtn = leadForm.querySelector('button[type="submit"]');
 
@@ -263,13 +359,12 @@ const roles = [
 						body: JSON.stringify({ name, contact, company })
 					});
 
-					const data = await response.json(); // Читаем ответ от сервера
+					const data = await response.json();
 
 					if (response.ok) {
 						alert('Спасибо! Ваша заявка отправлена. Мы свяжемся с вами в ближайшее время.');
 						leadForm.reset(); 
 					} else {
-						// ПОКАЗЫВАЕМ ТОЧНУЮ ОШИБКУ НА ЭКРАНЕ
 						alert('ОШИБКА: ' + (data.error || 'Неизвестная ошибка'));
 					}
 				} catch (error) {
