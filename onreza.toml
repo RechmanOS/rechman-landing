@@ -1,3 +1,6 @@
+[project]
+framework = "astro"
+
 [deploy]
 compute = "process"
 entry = "dist/server/entry.mjs"
