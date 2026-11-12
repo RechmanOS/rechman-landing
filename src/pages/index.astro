@@ -189,32 +189,6 @@ const roles = [
 				</div>
 			</section>
 
-			<!-- БЛОК 3: ФОРМА СБОРА ЗАЯВОК -->
-			<section id="contact" class="w-full max-w-2xl scroll-mt-24 bg-slate-800 p-8 rounded-2xl border border-slate-700 shadow-2xl mt-24 mx-6">
-				<div class="text-center mb-8">
-					<h2 class="text-3xl font-bold mb-2 text-slate-100">Запросить демонстрацию</h2>
-					<p class="text-slate-400">Оставьте контакты, и мы покажем вам возможности системы.</p>
-				</div>
-				
-				<form id="leadForm" class="space-y-4">
-					<div>
-						<label class="block text-sm font-medium text-slate-300 mb-1">Ваше имя</label>
-						<input type="text" required class="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors" placeholder="Иван Иванов" />
-					</div>
-					<div>
-						<label class="block text-sm font-medium text-slate-300 mb-1">Телефон или Email</label>
-						<input type="text" required class="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors" placeholder="+7 (999) 123-45-67" />
-					</div>
-					<div>
-						<label class="block text-sm font-medium text-slate-300 mb-1">Компания</label>
-						<input type="text" class="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors" placeholder="ООО Ромашка" />
-					</div>
-					<button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-4 rounded-lg shadow-lg shadow-emerald-500/30 transition-all mt-4">
-						Отправить заявку
-					</button>
-				</form>
-			</section>
-
 		</main>
 
 		<!-- МОДАЛЬНЫЕ ОКНА -->
@@ -376,45 +350,6 @@ const roles = [
 
 			roleModal.addEventListener('close', () => {
 				mySwiper.autoplay.start();
-			});
-
-			// --- Логика формы (Безопасная отправка) ---
-			const leadForm = document.getElementById('leadForm');
-			const submitBtn = leadForm.querySelector('button[type="submit"]');
-
-			leadForm.addEventListener('submit', async (e) => {
-				e.preventDefault(); 
-				
-				const originalText = submitBtn.textContent;
-				submitBtn.textContent = 'Отправка...';
-				submitBtn.disabled = true;
-
-				const name = leadForm.querySelector('input[type="text"]').value;
-				const contact = leadForm.querySelectorAll('input[type="text"]')[1].value; 
-				const companyInput = leadForm.querySelectorAll('input[type="text"]')[2];
-				const company = companyInput ? companyInput.value : 'Не указана';
-
-				try {
-					const response = await fetch('/api/send-lead', {
-						method: 'POST',
-						headers: { 'Content-Type': 'application/json' },
-						body: JSON.stringify({ name, contact, company })
-					});
-
-					const data = await response.json();
-
-					if (response.ok) {
-						alert('Спасибо! Ваша заявка отправлена. Мы свяжемся с вами в ближайшее время.');
-						leadForm.reset(); 
-					} else {
-						alert('ОШИБКА: ' + (data.error || 'Неизвестная ошибка'));
-					}
-				} catch (error) {
-					alert('Ошибка сети: ' + error.message);
-				} finally {
-					submitBtn.textContent = originalText;
-					submitBtn.disabled = false;
-				}
 			});
 		</script>
 	</body>
