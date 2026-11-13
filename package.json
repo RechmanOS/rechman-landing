@@ -15,6 +15,7 @@
     "@astrojs/node": "^11.1.12",
     "@tailwindcss/vite": "^4.3.5",
     "astro": "^7.4.10",
+    "astro-useragent": "^7.0.2",
     "swiper": "^14.4.0",
     "tailwindcss": "^4.3.5"
   }

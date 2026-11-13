@@ -1,0 +1,264 @@
+---
+// src/pages/feed.astro
+import '../styles/global.css';
+import VideoFeed from '../components/VideoFeed.astro';
+import { videos } from '../data/videos';
+
+const ua = Astro.request.headers.get('user-agent') || '';
+const isMobile = /Mobile|Android|iPhone|iPod/i.test(ua) && !/iPad|Tablet/i.test(ua);
+
+const title = "Rechman OS — Лента возможностей";
+---
+
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <title>{title}</title>
+    <style>
+      body, html {
+        margin: 0; padding: 0; height: 100%; overflow: hidden;
+        background-color: #3a0d1b;
+      }
+      .top-header {
+        position: absolute; top: 0; left: 0; width: 100%; z-index: 10000;
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 1rem 1.5rem; pointer-events: none;
+      }
+      .top-header > * { pointer-events: auto; }
+      .header-logo {
+        color: white; font-weight: 700; font-size: 1.25rem;
+        letter-spacing: 0.1em; text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+      }
+      .header-link {
+        color: white; font-size: 0.875rem; font-weight: 500;
+        text-decoration: none; transition: color 0.2s;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+      }
+      .header-link:hover { color: #f9a8d4; }
+    </style>
+  </head>
+  <body>
+    
+    <header class="top-header">
+      <div style="width: 32px;"></div>
+      <div class="header-logo">RECHMAN OS</div>
+      <a href="/docs" class="header-link">О системе →</a>
+    </header>
+
+    <VideoFeed videos={videos} isMobile={isMobile} />
+
+    <script is:inline>
+      document.addEventListener('DOMContentLoaded', () => {
+        const feed = document.getElementById('video-feed');
+        if (!feed) return;
+
+        const isMobile = feed.classList.contains('mobile-feed');
+        const slides = Array.from(feed.querySelectorAll('.video-slide'));
+
+        // --- 1. АВТОВОСПРОИЗВЕДЕНИЕ ---
+        const observerOptions = { root: null, rootMargin: '0px', threshold: 0.6 };
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            const video = entry.target.querySelector('video');
+            if (video) {
+              if (entry.isIntersecting) {
+                video.play().catch((e) => console.log('Autoplay blocked:', e));
+              } else {
+                video.pause();
+              }
+            }
+          });
+        }, observerOptions);
+        slides.forEach((slide) => observer.observe(slide));
+
+        // --- 2. ЛОГИКА КНОПОК И ШТОРОК ---
+        slides.forEach((slide) => {
+          const video = slide.querySelector('video');
+          const videoMask = slide.querySelector('.video-mask');
+          const backdrop = slide.querySelector('.sheet-backdrop');
+          
+          const btnSound = slide.querySelector('.btn-sound');
+          const btnLike = slide.querySelector('.btn-like');
+          const likeCount = slide.querySelector('.like-count');
+          const btnShare = slide.querySelector('.btn-share');
+          const btnComment = slide.querySelector('.btn-comment');
+          const btnDescOpen = slide.querySelector('.btn-desc-open');
+          const bigHeart = slide.querySelector('.big-heart');
+
+          const shareSheet = slide.querySelector('.share-sheet');
+          const descSheet = slide.querySelector('.desc-sheet');
+          const commentsSheet = slide.querySelector('.comments-sheet');
+
+          const videoId = slide.getAttribute('data-id');
+          const shareUrl = window.location.origin + '/feed?v=' + videoId;
+
+          // Функция закрытия всех шторок
+          const closeAllSheets = () => {
+            shareSheet.classList.remove('is-open');
+            descSheet.classList.remove('is-open');
+            commentsSheet.classList.remove('is-open');
+            backdrop.classList.remove('is-visible');
+            if (video) video.play();
+          };
+
+          slide.querySelectorAll('.close-sheet').forEach(btn => btn.addEventListener('click', (e) => { e.stopPropagation(); closeAllSheets(); }));
+          backdrop.addEventListener('click', closeAllSheets);
+
+          // Звук
+          if (btnSound) {
+            btnSound.addEventListener('click', (e) => {
+              e.stopPropagation();
+              video.muted = !video.muted;
+              btnSound.classList.toggle('is-unmuted', !video.muted);
+            });
+          }
+
+          // Лайк (по кнопке)
+          if (btnLike) {
+            let isLiked = false;
+            btnLike.addEventListener('click', (e) => {
+              e.stopPropagation();
+              isLiked = !isLiked;
+              btnLike.classList.toggle('is-liked', isLiked);
+              likeCount.textContent = isLiked ? '1' : '0';
+            });
+          }
+
+          // Двойной тап по видео (Лайк)
+          let lastTap = 0;
+          videoMask.addEventListener('click', (e) => {
+            const currentTime = new Date().getTime();
+            const tapLength = currentTime - lastTap;
+            if (tapLength < 300 && tapLength > 0) {
+              e.preventDefault();
+              if (!btnLike.classList.contains('is-liked')) btnLike.click();
+              bigHeart.classList.remove('animate');
+              void bigHeart.offsetWidth;
+              bigHeart.classList.add('animate');
+            }
+            lastTap = currentTime;
+          });
+
+          // Свайп вверх (Открытие описания на мобильном)
+          let touchStart = 0;
+          videoMask.addEventListener('touchstart', (e) => { touchStart = e.changedTouches[0].screenY; }, {passive: true});
+          videoMask.addEventListener('touchend', (e) => {
+            const touchEnd = e.changedTouches[0].screenY;
+            if (touchStart - touchEnd > 50) {
+              descSheet.classList.add('is-open');
+              backdrop.classList.add('is-visible');
+              if (video) video.pause();
+            }
+          }, {passive: true});
+
+          // Кнопка Стрелочка внизу (Описание на ПК)
+          btnDescOpen.addEventListener('click', (e) => {
+            e.stopPropagation();
+            descSheet.classList.add('is-open');
+            backdrop.classList.add('is-visible');
+            if (video) video.pause();
+          });
+
+          // Комментарии
+          btnComment.addEventListener('click', (e) => {
+            e.stopPropagation();
+            commentsSheet.classList.add('is-open');
+            backdrop.classList.add('is-visible');
+            if (video) video.pause();
+          });
+
+          // Поделиться (Шторка)
+          btnShare.addEventListener('click', (e) => {
+            e.stopPropagation();
+            shareSheet.classList.add('is-open');
+            backdrop.classList.add('is-visible');
+            if (video) video.pause();
+          });
+
+          // Ссылки для шаринга
+          const btnTg = slide.querySelector('.btn-tg');
+          const btnMax = slide.querySelector('.btn-max');
+          const btnCopy = slide.querySelector('.btn-copy');
+
+          if (btnTg) btnTg.href = `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=Смотрите это видео на Rechman OS`;
+          if (btnMax) btnMax.href = `https://max.ru/share?url=${encodeURIComponent(shareUrl)}`;
+          
+          if (btnCopy) {
+            btnCopy.addEventListener('click', () => {
+              navigator.clipboard.writeText(shareUrl).then(() => {
+                btnCopy.textContent = 'Скопировано!';
+                setTimeout(() => btnCopy.textContent = 'Скопировать ссылку', 2000);
+              });
+            });
+          }
+        });
+
+        // --- 3. ЛОГИКА БЛЮРА И ПЕРЕТАСКИВАНИЯ ---
+        if (!isMobile) {
+          let ticking = false;
+          const updateActiveSlide = () => {
+            const feedRect = feed.getBoundingClientRect();
+            const feedCenter = feedRect.left + feedRect.width / 2;
+            let closestSlide = null;
+            let minDistance = Infinity;
+
+            for (let i = 0; i < slides.length; i++) {
+              const slide = slides[i];
+              const slideRect = slide.getBoundingClientRect();
+              const slideCenter = slideRect.left + slideRect.width / 2;
+              const distance = Math.abs(feedCenter - slideCenter);
+              if (distance < minDistance) {
+                minDistance = distance;
+                closestSlide = slide;
+              }
+            }
+
+            for (let i = 0; i < slides.length; i++) slides[i].classList.remove('is-active');
+            if (closestSlide !== null) closestSlide.classList.add('is-active');
+            ticking = false;
+          };
+
+          feed.addEventListener('scroll', () => {
+            if (!ticking) {
+              window.requestAnimationFrame(updateActiveSlide);
+              ticking = true;
+            }
+          });
+          setTimeout(updateActiveSlide, 500);
+
+          // ПЕРЕТАСКИВАНИЕ МЫШКОЙ
+          let isDown = false;
+          let startX = 0;
+          let scrollLeft = 0;
+
+          feed.addEventListener('mousedown', (e) => {
+            if (e.target.closest('.action-btn') || e.target.closest('.bottom-sheet') || e.target.closest('.btn-desc-open')) return;
+            if (e.button !== 0) return; 
+            isDown = true;
+            feed.classList.add('active-drag');
+            startX = e.clientX - feed.offsetLeft;
+            scrollLeft = feed.scrollLeft;
+            e.preventDefault(); 
+          });
+
+          window.addEventListener('mouseup', () => {
+            isDown = false;
+            feed.classList.remove('active-drag');
+          });
+
+          window.addEventListener('mousemove', (e) => {
+            if (!isDown) return;
+            e.preventDefault();
+            const x = e.clientX - feed.offsetLeft;
+            const walk = (x - startX) * 1.5; 
+            feed.scrollLeft = scrollLeft - walk;
+          });
+          
+          feed.addEventListener('dragstart', (e) => e.preventDefault());
+        }
+      });
+    </script>
+  </body>
+</html>

@@ -1,30 +1,38 @@
 // @ts-nocheck
 import type { APIRoute } from 'astro';
 
-// 👇 ВСТАВЬТЕ СЮДА ВАШ URL ОТ CLOUDFLARE WORKER
-const WORKER_URL = 'https://rechman-form-proxy.factoryproject2021.workers.dev';
+// ============================================================================
+// ВНИМАНИЕ: ПРИЁМ ЗАЯВОК ВРЕМЕННО ОТКЛЮЧЁН.
+//
+// Причина: приведение сайта в соответствие с требованиями Федерального
+// закона № 152-ФЗ «О персональных данных». Без:
+//   - политики конфиденциальности,
+//   - явного согласия пользователя на обработку ПД,
+//   - уведомления в Роскомнадзор,
+//   - хранения данных на серверах в РФ
+// — сбор персональных данных через форму является нарушением.
+//
+// Чтобы ВКЛЮЧИТЬ форму обратно (когда всё будет готово):
+//   1. Восстановить оригинальный обработчик из тега v1.0-form-works
+//      (команда: git checkout v1.0-form-works -- src/pages/api/send-lead.ts)
+//   2. Вернуть форму в index.astro.
+//
+// Оригинальный рабочий код сохранён в:
+//   - Git-теге v1.0-form-works
+//   - Локальном бэкапе в папке rechman-backup/
+//   - Файле mega1.pdf (страницы 6-7)
+// ============================================================================
 
-export const POST: APIRoute = async ({ request }) => {
-  try {
-    const body = await request.json();
-    const { name, contact, company } = body;
-
-    // Отправляем запрос на наш Cloudflare Worker
-    const response = await fetch(WORKER_URL, {
-      method: 'POST',
+export const POST: APIRoute = async () => {
+  return new Response(
+    JSON.stringify({
+      success: false,
+      error:
+        'Приём заявок временно приостановлен. Мы приводим сайт в соответствие с требованиями Федерального закона № 152-ФЗ «О персональных данных».',
+    }),
+    {
+      status: 503,
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, contact, company })
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      console.error('Ошибка от Worker:', errorData);
-      throw new Error('Worker error');
     }
-
-    return new Response(JSON.stringify({ success: true }), { status: 200 });
-  } catch (error) {
-    console.error('Ошибка сервера:', error);
-    return new Response(JSON.stringify({ error: 'Внутренняя ошибка' }), { status: 500 });
-  }
+  );
 };
