@@ -15,38 +15,45 @@ const { videos, isMobile } = Astro.props;
   {videos.map((video, index) => (
     <div class="video-slide" data-id={video.id} data-index={index}>
       
-      <!-- Видео -->
       <video
         class="slide-video"
-        src={video.src}
+        data-src={video.src}
         loop
         muted
         playsinline
         autoplay
-        preload="metadata"
+        preload="none"
         draggable="false"
         disablePictureInPicture
         controlsList="nodownload noplaybackrate nofullscreen"
       ></video>
 
-      <!-- Невидимый щит для перетаскивания и двойного клика -->
+      <div class="loader"></div>
       <div class="video-mask"></div>
 
-      <!-- Большое сердце для анимации двойного тапа -->
+      <div class="pause-overlay">
+        <svg viewBox="0 0 24 24" fill="white" width="80" height="80">
+          <rect x="6" y="4" width="4" height="16" rx="1"></rect>
+          <rect x="14" y="4" width="4" height="16" rx="1"></rect>
+        </svg>
+      </div>
+
+      <div class="top-brand">
+        <img src="/logo.png" alt="Logo" class="top-brand-icon" />
+      </div>
+
       <div class="big-heart">
         <svg viewBox="0 0 24 24" fill="#ff4d4d" stroke="#ff4d4d" stroke-width="1" width="100" height="100">
           <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
         </svg>
       </div>
 
-      <!-- Стрелочка внизу для открытия описания (удобно на ПК) -->
       <button class="btn-desc-open" aria-label="Описание">
         <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <polyline points="18 15 12 9 6 15"></polyline>
         </svg>
       </button>
 
-      <!-- Правая панель действий -->
       <div class="action-rail">
         <button class="action-btn btn-sound" aria-label="Включить звук">
           <svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
@@ -91,11 +98,39 @@ const { videos, isMobile } = Astro.props;
         </a>
       </div>
 
+      <a href="/contact" class="btn-contact" aria-label="Связаться">
+        <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+          <polyline points="22,6 12,13 2,6"></polyline>
+        </svg>
+      </a>
+
       <div class="video-info">
+        <!-- АВАТАРКА ТЕПЕРЬ ССЫЛКА -->
+        <a href="/about" class="author-avatar" aria-label="О компании">
+          <img src="/favicon.png" alt="Author" />
+        </a>
         <h3>{video.title}</h3>
       </div>
 
-      <!-- ШТОРКА: КОММЕНТАРИИ -->
+      <!-- ШТОРКА ОПИСАНИЯ -->
+      <div class="bottom-sheet desc-sheet">
+        <div class="sheet-header">
+          <h4>{video.title}</h4>
+          <button class="close-sheet">✕</button>
+        </div>
+        <div class="sheet-body desc-body">
+          <p class="desc-text">{video.description}</p>
+        </div>
+        <div class="site-footer">
+          <div class="footer-links-row">
+            <a href="/privacy" class="footer-link">Политика конфиденциальности</a>
+            <a href="tel:+79999999999" class="footer-phone">+7 (999) 999-99-99</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- ШТОРКА КОММЕНТАРИЕВ -->
       <div class="bottom-sheet comments-sheet">
         <div class="sheet-header">
           <h4>Комментарии ({video.comments.length})</h4>
@@ -111,18 +146,7 @@ const { videos, isMobile } = Astro.props;
         </div>
       </div>
 
-      <!-- ШТОРКА: ОПИСАНИЕ -->
-      <div class="bottom-sheet desc-sheet">
-        <div class="sheet-header">
-          <h4>{video.title}</h4>
-          <button class="close-sheet">✕</button>
-        </div>
-        <div class="sheet-body">
-          <p class="desc-text">{video.description}</p>
-        </div>
-      </div>
-
-      <!-- ШТОРКА: ПОДЕЛИТЬСЯ -->
+      <!-- ШТОРКА ПОДЕЛИТЬСЯ -->
       <div class="bottom-sheet share-sheet">
         <div class="sheet-header">
           <h4>Поделиться</h4>
@@ -135,7 +159,6 @@ const { videos, isMobile } = Astro.props;
         </div>
       </div>
 
-      <!-- Задний фон для всех шторок -->
       <div class="sheet-backdrop"></div>
 
     </div>
@@ -143,6 +166,7 @@ const { videos, isMobile } = Astro.props;
 </div>
 
 <style>
+  /* ... (все стили остаются без изменений, меняется только .author-avatar) ... */
   .video-feed {
     height: 100dvh;
     background: #3a0d1b;
@@ -165,6 +189,53 @@ const { videos, isMobile } = Astro.props;
     -webkit-media-controls: none !important;
   }
 
+  .pause-overlay {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%) scale(0.8);
+    z-index: 30;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    filter: drop-shadow(0 4px 10px rgba(0,0,0,0.6));
+  }
+
+  .pause-overlay.visible {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+
+  .top-brand {
+    position: absolute;
+    top: 1.5rem;
+    left: 1.5rem;
+    z-index: 20;
+    pointer-events: none;
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.8));
+  }
+
+  .top-brand-icon {
+    height: 82px; 
+    width: auto;
+    object-fit: contain;
+  }
+
+  .loader {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    border: 4px solid rgba(255,255,255,0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    z-index: 15;
+    pointer-events: none;
+    display: none;
+  }
+
+  .loader.visible { display: block; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
   .video-mask {
     position: absolute;
     inset: 0;
@@ -173,80 +244,51 @@ const { videos, isMobile } = Astro.props;
     pointer-events: auto;
   }
 
-  .desktop-feed.active-drag .video-mask {
-    cursor: grabbing;
-  }
+  .desktop-feed.active-drag .video-mask { cursor: grabbing; }
 
-  /* --- БОЛЬШОЕ СЕРДЦЕ --- */
   .big-heart {
     position: absolute;
-    top: 50%;
-    left: 50%;
+    top: 50%; left: 50%;
     transform: translate(-50%, -50%) scale(0);
-    z-index: 50;
-    pointer-events: none;
-    opacity: 0;
+    z-index: 50; pointer-events: none; opacity: 0;
     filter: drop-shadow(0 0 20px rgba(255, 77, 77, 0.6));
   }
-
-  .big-heart.animate {
-    animation: heart-pop 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-  }
-
+  .big-heart.animate { animation: heart-pop 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
   @keyframes heart-pop {
     0% { transform: translate(-50%, -50%) scale(0); opacity: 1; }
     50% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
     100% { transform: translate(-50%, -50%) scale(1); opacity: 0; }
   }
 
-  /* --- КНОПКА ОПИСАНИЯ --- */
   .btn-desc-open {
     position: absolute;
-    bottom: 20px;
-    left: 50%;
+    bottom: 20px; left: 50%;
     transform: translateX(-50%);
     z-index: 20;
     background: rgba(255, 255, 255, 0.2);
     border: 1px solid rgba(255,255,255,0.4);
     border-radius: 50%;
-    width: 44px;
-    height: 44px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    backdrop-filter: blur(4px);
-    pointer-events: auto;
-    transition: background 0.2s;
+    width: 44px; height: 44px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; backdrop-filter: blur(4px);
+    pointer-events: auto; transition: background 0.2s;
   }
-
   .btn-desc-open:hover { background: rgba(255,255,255,0.4); }
 
-  /* --- ПРАВАЯ ПАНЕЛЬ --- */
   .action-rail {
     position: absolute;
-    right: 12px;
-    bottom: 100px;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
+    right: 12px; 
+    bottom: 180px;
+    display: flex; flex-direction: column; gap: 20px;
     z-index: 20;
   }
 
   .action-btn {
-    background: none;
-    border: none;
-    padding: 4px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 6px;
-    cursor: pointer;
-    transition: transform 0.2s ease;
-    pointer-events: auto;
-    text-decoration: none;
+    background: none; border: none; padding: 4px;
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    cursor: pointer; transition: transform 0.2s ease;
+    pointer-events: auto; text-decoration: none;
   }
-
   .action-btn:hover { transform: scale(1.1); }
 
   .btn-sound .sound-wave { display: none; }
@@ -259,75 +301,146 @@ const { videos, isMobile } = Astro.props;
   @keyframes heart-pop-small { 0% { transform: scale(1); } 50% { transform: scale(1.3); } 100% { transform: scale(1); } }
 
   .action-count {
-    color: white;
-    font-size: 14px;
-    font-weight: 700;
+    color: white; font-size: 14px; font-weight: 700;
     text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+  }
+
+  .btn-contact {
+    position: absolute;
+    right: 16px;
+    bottom: 30px;
+    z-index: 20;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #0e4b8a, #5ab5b0);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: auto;
+    box-shadow: 0 4px 15px rgba(90, 181, 176, 0.4);
+    animation: pulse-shake 2s infinite;
+  }
+
+  @keyframes pulse-shake {
+    0% { transform: scale(1) rotate(0); box-shadow: 0 0 0 0 rgba(90, 181, 176, 0.7); }
+    10% { transform: scale(1.05) rotate(-5deg); }
+    20% { transform: scale(1.05) rotate(5deg); }
+    30% { transform: scale(1.05) rotate(-5deg); }
+    40% { transform: scale(1.05) rotate(5deg); }
+    50% { transform: scale(1) rotate(0); box-shadow: 0 0 0 10px rgba(90, 181, 176, 0); }
+    100% { transform: scale(1) rotate(0); box-shadow: 0 0 0 0 rgba(90, 181, 176, 0); }
+  }
+
+  .btn-contact:hover {
+    animation: none;
+    transform: scale(1.1);
+    background: linear-gradient(135deg, #1462b0, #6cd4cf);
   }
 
   .video-info {
     position: absolute;
     bottom: 2rem;
-    left: 2rem;
+    left: 1.5rem;
     color: white;
     z-index: 20;
     pointer-events: none;
     text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  /* СТИЛИ АВАТАРКИ-ССЫЛКИ */
+  .author-avatar {
+    display: block; /* Для ссылки */
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: white; 
+    overflow: hidden;
+    border: 2px solid #5ab5b0;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+    pointer-events: auto; /* Возвращаем кликабельность */
+    cursor: pointer;
+    transition: transform 0.2s;
+  }
+
+  .author-avatar:hover {
+    transform: scale(1.05);
+  }
+
+  .author-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
   }
 
   .video-info h3 { margin: 0; font-size: 1.5rem; font-weight: 700; }
 
-  /* --- ШТОРКИ --- */
   .bottom-sheet {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    max-height: 70%;
-    background: #f7f5f0;
-    color: #3a0d1b;
+    position: absolute; bottom: 0; left: 0; width: 100%; max-height: 75%;
+    background: #f7f5f0; color: #3a0d1b;
     border-radius: 24px 24px 0 0;
-    z-index: 100;
-    transform: translateY(100%);
+    z-index: 100; transform: translateY(100%);
     transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    display: flex;
-    flex-direction: column;
-    pointer-events: auto;
+    display: flex; flex-direction: column; pointer-events: auto;
   }
-
   .bottom-sheet.is-open { transform: translateY(0); }
 
   .sheet-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem 1.5rem;
-    border-bottom: 1px solid rgba(0,0,0,0.1);
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 1rem 1.5rem; border-bottom: 1px solid rgba(0,0,0,0.1);
   }
-
   .sheet-header h4 { margin: 0; font-size: 1.25rem; }
+  .close-sheet { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #3a0d1b; }
 
-  .close-sheet {
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    cursor: pointer;
-    color: #3a0d1b;
-  }
-
-  .sheet-body {
-    padding: 1.5rem;
-    overflow-y: auto;
-    flex: 1;
-  }
-
+  .sheet-body { padding: 1.5rem; overflow-y: auto; flex: 1; }
   .comment-item { margin-bottom: 1rem; font-size: 0.95rem; }
   .comment-author { font-weight: 700; display: block; margin-bottom: 4px; }
   .comment-text { margin: 0; line-height: 1.4; }
 
-  .desc-text { font-size: 1rem; line-height: 1.6; margin: 0; }
+  .desc-body {
+    padding-bottom: 1rem;
+  }
 
-  /* Кнопки шаринга */
+  .desc-text { 
+    font-size: 1rem; 
+    line-height: 1.6; 
+    margin: 0; 
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .site-footer {
+    padding: 1rem 1.5rem;
+    background: rgba(0, 0, 0, 0.03);
+    border-top: 1px solid rgba(0,0,0,0.1);
+    margin-top: auto;
+  }
+
+  .footer-links-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.85rem;
+  }
+
+  .footer-phone {
+    color: #3a0d1b;
+    font-weight: 700;
+    text-decoration: none;
+  }
+  .footer-phone:hover { text-decoration: underline; }
+
+  .footer-link {
+    color: #0e4b8a;
+    text-decoration: none;
+  }
+  .footer-link:hover { text-decoration: underline; }
+
   .share-buttons { display: flex; flex-direction: column; gap: 12px; }
   .share-btn {
     display: block; width: 100%; padding: 14px; border-radius: 12px;
@@ -338,60 +451,35 @@ const { videos, isMobile } = Astro.props;
   .btn-max { background: #8e24aa; color: white; }
 
   .sheet-backdrop {
-    position: absolute;
-    inset: 0;
-    background: rgba(0,0,0,0.5);
-    z-index: 90;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s;
+    position: absolute; inset: 0; background: rgba(0,0,0,0.5);
+    z-index: 90; opacity: 0; pointer-events: none; transition: opacity 0.3s;
   }
+  .sheet-backdrop.is-visible { opacity: 1; pointer-events: auto; }
 
-  .sheet-backdrop.is-visible {
-    opacity: 1;
-    pointer-events: auto;
-  }
-
-  /* --- МОБИЛЬНАЯ ВЕРСИЯ --- */
   .mobile-feed { overflow-y: scroll; scroll-snap-type: y mandatory; scroll-snap-stop: always; }
   .mobile-feed .video-slide { height: 100dvh; scroll-snap-align: start; width: 100%; }
-  .mobile-feed .action-rail { bottom: 100px; right: 8px; }
+  .mobile-feed .action-rail { bottom: 180px; right: 8px; }
+  .mobile-feed .btn-contact { bottom: 30px; right: 16px; }
 
-  /* --- ДЕСКТОП/ПЛАНШЕТ ВЕРСИЯ --- */
   .desktop-feed {
-    display: flex;
-    overflow-x: scroll;
-    scroll-snap-type: x mandatory;
-    scroll-snap-stop: always;
-    gap: 24px;
-    padding: 0 25vw; 
-    align-items: center;
-    cursor: grab;
-    user-select: none;
+    display: flex; overflow-x: scroll; scroll-snap-type: x mandatory; scroll-snap-stop: always;
+    gap: 24px; padding: 0 25vw; align-items: center;
+    cursor: grab; user-select: none;
   }
-
   .desktop-feed.active-drag { cursor: grabbing; scroll-snap-type: none !important; }
 
   .desktop-feed .video-slide {
-    flex: 0 0 auto;
-    width: 50vw; 
-    max-width: 600px;
-    height: 85vh; 
-    scroll-snap-align: center;
-    border-radius: 24px; 
+    flex: 0 0 auto; width: 50vw; max-width: 600px; height: 85vh;
+    scroll-snap-align: center; border-radius: 24px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.5);
     transition: filter 0.4s ease, transform 0.4s ease, opacity 0.4s ease;
     filter: blur(8px) brightness(0.6);
-    transform: scale(0.92);
-    opacity: 0.7;
+    transform: scale(0.92); opacity: 0.7;
   }
-
   .desktop-feed .video-slide.is-active { filter: blur(0) brightness(1); transform: scale(1); opacity: 1; }
 
   .mobile-feed .slide-video, .mobile-feed .video-slide {
-    border-radius: 0;
-    filter: none !important;
-    transform: none !important;
-    opacity: 1 !important;
+    border-radius: 0; filter: none !important;
+    transform: none !important; opacity: 1 !important;
   }
 </style>

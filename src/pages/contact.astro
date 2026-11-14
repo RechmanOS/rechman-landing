@@ -1,0 +1,75 @@
+---
+// src/pages/contact.astro
+import '../styles/global.css';
+
+const title = "Связаться с нами — Rechman OS";
+---
+
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <title>{title}</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        background-color: #f7f5f0; /* Кремовый фон */
+        color: #3a0d1b; /* Темно-бордовый текст */
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        line-height: 1.6;
+        -webkit-font-smoothing: antialiased;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+      }
+
+      .container {
+        max-width: 600px;
+        padding: 3rem;
+        background: white;
+        border-radius: 24px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        text-align: center;
+      }
+
+      h1 {
+        font-size: 2rem;
+        font-weight: 900;
+        margin-bottom: 1rem;
+        letter-spacing: -0.02em;
+        color: #0e4b8a;
+      }
+
+      p {
+        margin-bottom: 2rem;
+        font-size: 1.1rem;
+        color: #555;
+      }
+
+      .back-button {
+        display: inline-block;
+        background: linear-gradient(135deg, #0e4b8a, #5ab5b0);
+        color: white;
+        text-decoration: none;
+        padding: 0.8rem 2rem;
+        border-radius: 30px;
+        font-weight: 700;
+        transition: transform 0.2s;
+      }
+
+      .back-button:hover {
+        transform: scale(1.05);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Форма обратной связи</h1>
+      <p>Здесь скоро появится форма для отправки заявок и сообщений. Мы активно работаем над её подключением и настройкой безопасности.</p>
+      <a href="/feed" class="back-button">← Вернуться в ленту</a>
+    </div>
+  </body>
+</html>

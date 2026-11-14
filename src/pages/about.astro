@@ -1,0 +1,153 @@
+---
+// src/pages/about.astro
+import '../styles/global.css';
+
+const title = "О компании — Rechman OS";
+---
+
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <title>{title}</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        background-color: #f7f5f0;
+        color: #3a0d1b;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        line-height: 1.6;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      .about-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 4rem 1.5rem;
+      }
+
+      .back-link {
+        display: inline-flex;
+        align-items: center;
+        color: #0e4b8a;
+        text-decoration: none;
+        font-weight: 600;
+        margin-bottom: 2rem;
+        transition: opacity 0.2s;
+      }
+      .back-link:hover { opacity: 0.7; }
+
+      h1 {
+        font-size: 2.5rem;
+        font-weight: 900;
+        margin-bottom: 1rem;
+        letter-spacing: -0.02em;
+      }
+
+      .subtitle {
+        color: #666;
+        font-size: 1.1rem;
+        margin-bottom: 3rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid rgba(0,0,0,0.1);
+      }
+
+      h2 {
+        font-size: 1.4rem;
+        font-weight: 700;
+        margin-top: 2.5rem;
+        margin-bottom: 1rem;
+        color: #0e4b8a;
+      }
+
+      p {
+        margin-bottom: 1.2rem;
+        font-size: 1.05rem;
+      }
+
+      .highlight-block {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 16px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+        margin: 2rem 0;
+        border-left: 4px solid #5ab5b0;
+      }
+
+      .highlight-block p {
+        margin: 0;
+        font-weight: 500;
+        font-style: italic;
+      }
+
+      .contacts-box {
+        margin-top: 4rem;
+        padding: 2rem;
+        background: #3a0d1b;
+        color: white;
+        border-radius: 16px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+      }
+
+      .contacts-box h2 {
+        color: white;
+        margin-top: 0;
+      }
+
+      .contact-button {
+        display: inline-block;
+        background: linear-gradient(135deg, #0e4b8a, #5ab5b0);
+        color: white;
+        text-decoration: none;
+        padding: 1rem 2rem;
+        border-radius: 30px;
+        font-weight: 700;
+        margin-top: 1rem;
+        transition: transform 0.2s;
+      }
+
+      .contact-button:hover {
+        transform: scale(1.05);
+      }
+    </style>
+  </head>
+  <body>
+    
+    <div class="about-container">
+      <a href="/feed" class="back-link">← Вернуться в ленту</a>
+      
+      <h1>RECHMAN OS</h1>
+      <div class="subtitle">Автономный операционный руководитель для вашего бизнеса</div>
+
+      <h2>Наша миссия</h2>
+      <p>Мы создаем будущее, в котором бизнес-процессы управляют собой сами. Мы избавляем предпринимателей и руководителей от рутины, ошибок человеческого фактора и зависимости от «незаменимых» сотрудников.</p>
+
+      <div class="highlight-block">
+        <p>«Переход от схемы "люди управляют процессами (и ошибаются, болеют, выгорают)" к схеме "ИИ — беспристрастный руководитель процессов". Люди лишь четко выполняют функции по зафиксированному пайплайну».</p>
+      </div>
+
+      <h2>Почему мы это делаем</h2>
+      <p>Классический бизнес тратит до 70% времени руководителя на контроль и тушение пожаров. Знания хранятся в головах увольняющихся сотрудников, регламенты не работают, а KPI существуют только на бумаге.</p>
+      <p>RECHMAN OS решает эти проблемы, внедряясь в компанию по принципу «не навреди». Мы подстраиваемся под ваши существующие процессы и постепенно, шаг за шагом, передаем управленческую логику системе.</p>
+
+      <h2>Наши принципы</h2>
+      <p><strong>1. Безопасность прежде всего.</strong> Система работает локально (On-Premise). Ваши коммерческие тайны и базы данных никогда не попадут в публичные облака.</p>
+      <p><strong>2. Объективность.</strong> RECHMAN OS фиксирует 100% цифровых следов. Любой спор внутри компании решается на основе данных, а не эмоций.</p>
+      <p><strong>3. Помощь, а не тотальный контроль.</strong> У системы две сущности: первая помогает сотруднику справляться с задачами, вторая — мягко удерживает его в таймлайне.</p>
+
+      <div class="contacts-box">
+        <h2>Хотите узнать больше?</h2>
+        <p>Мы всегда на связи и готовы показать систему в деле.</p>
+        
+        <!-- ИСПРАВЛЕНА ССЫЛКА НА /contact -->
+        <a href="/contact" class="contact-button">Связаться с нами</a>
+      </div>
+    </div>
+
+  </body>
+</html>

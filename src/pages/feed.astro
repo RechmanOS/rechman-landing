@@ -21,32 +21,10 @@ const title = "Rechman OS — Лента возможностей";
         margin: 0; padding: 0; height: 100%; overflow: hidden;
         background-color: #3a0d1b;
       }
-      .top-header {
-        position: absolute; top: 0; left: 0; width: 100%; z-index: 10000;
-        display: flex; align-items: center; justify-content: space-between;
-        padding: 1rem 1.5rem; pointer-events: none;
-      }
-      .top-header > * { pointer-events: auto; }
-      .header-logo {
-        color: white; font-weight: 700; font-size: 1.25rem;
-        letter-spacing: 0.1em; text-shadow: 0 2px 4px rgba(0,0,0,0.5);
-      }
-      .header-link {
-        color: white; font-size: 0.875rem; font-weight: 500;
-        text-decoration: none; transition: color 0.2s;
-        text-shadow: 0 2px 4px rgba(0,0,0,0.5);
-      }
-      .header-link:hover { color: #f9a8d4; }
     </style>
   </head>
   <body>
     
-    <header class="top-header">
-      <div style="width: 32px;"></div>
-      <div class="header-logo">RECHMAN OS</div>
-      <a href="/docs" class="header-link">О системе →</a>
-    </header>
-
     <VideoFeed videos={videos} isMobile={isMobile} />
 
     <script is:inline>
@@ -56,27 +34,72 @@ const title = "Rechman OS — Лента возможностей";
 
         const isMobile = feed.classList.contains('mobile-feed');
         const slides = Array.from(feed.querySelectorAll('.video-slide'));
+        
+        const manageVideos = (activeIndex) => {
+          slides.forEach((slide, i) => {
+            const video = slide.querySelector('video');
+            const loader = slide.querySelector('.loader');
+            const pauseIcon = slide.querySelector('.pause-overlay');
+            if (!video) return;
 
-        // --- 1. АВТОВОСПРОИЗВЕДЕНИЕ ---
-        const observerOptions = { root: null, rootMargin: '0px', threshold: 0.6 };
-        const observer = new IntersectionObserver((entries) => {
-          entries.forEach((entry) => {
-            const video = entry.target.querySelector('video');
-            if (video) {
-              if (entry.isIntersecting) {
-                video.play().catch((e) => console.log('Autoplay blocked:', e));
+            if (Math.abs(i - activeIndex) <= 1) {
+              if (!video.src || video.src === '') {
+                video.src = video.dataset.src;
+              }
+              
+              video.addEventListener('waiting', () => loader.classList.add('visible'));
+              video.addEventListener('playing', () => {
+                loader.classList.remove('visible');
+                pauseIcon.classList.remove('visible'); // Скрываем паузу
+              });
+              video.addEventListener('canplay', () => loader.classList.remove('visible'));
+
+              if (i === activeIndex) {
+                if (!video.dataset.userPaused) {
+                  video.play().catch((e) => console.log('Autoplay blocked:', e));
+                } else {
+                  // Если пользователь поставил на паузу, показываем иконку
+                  pauseIcon.classList.add('visible');
+                }
               } else {
                 video.pause();
+                video.dataset.userPaused = ''; 
+                pauseIcon.classList.remove('visible');
+              }
+            } else {
+              if (video.src && video.src !== '') {
+                video.pause();
+                video.removeAttribute('src');
+                video.load(); 
+                loader.classList.remove('visible');
+                pauseIcon.classList.remove('visible');
+              }
+            }
+          });
+        };
+
+        const observerOptions = { root: null, rootMargin: '0px', threshold: 0.6 };
+        let currentActiveIndex = 0;
+
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              const index = parseInt(entry.target.getAttribute('data-index'));
+              if (!isNaN(index)) {
+                currentActiveIndex = index;
+                manageVideos(currentActiveIndex);
               }
             }
           });
         }, observerOptions);
+        
         slides.forEach((slide) => observer.observe(slide));
+        setTimeout(() => manageVideos(0), 100);
 
-        // --- 2. ЛОГИКА КНОПОК И ШТОРОК ---
         slides.forEach((slide) => {
           const video = slide.querySelector('video');
           const videoMask = slide.querySelector('.video-mask');
+          const pauseIcon = slide.querySelector('.pause-overlay');
           const backdrop = slide.querySelector('.sheet-backdrop');
           
           const btnSound = slide.querySelector('.btn-sound');
@@ -94,28 +117,26 @@ const title = "Rechman OS — Лента возможностей";
           const videoId = slide.getAttribute('data-id');
           const shareUrl = window.location.origin + '/feed?v=' + videoId;
 
-          // Функция закрытия всех шторок
           const closeAllSheets = () => {
             shareSheet.classList.remove('is-open');
             descSheet.classList.remove('is-open');
             commentsSheet.classList.remove('is-open');
             backdrop.classList.remove('is-visible');
-            if (video) video.play();
+            if (video && video.src && !video.dataset.userPaused) video.play();
           };
 
           slide.querySelectorAll('.close-sheet').forEach(btn => btn.addEventListener('click', (e) => { e.stopPropagation(); closeAllSheets(); }));
           backdrop.addEventListener('click', closeAllSheets);
 
-          // Звук
           if (btnSound) {
             btnSound.addEventListener('click', (e) => {
               e.stopPropagation();
+              if (!video.src) return;
               video.muted = !video.muted;
               btnSound.classList.toggle('is-unmuted', !video.muted);
             });
           }
 
-          // Лайк (по кнопке)
           if (btnLike) {
             let isLiked = false;
             btnLike.addEventListener('click', (e) => {
@@ -126,58 +147,64 @@ const title = "Rechman OS — Лента возможностей";
             });
           }
 
-          // Двойной тап по видео (Лайк)
+          // --- ЛОГИКА ТАПА (ПАУЗА/ЛАЙК) ---
           let lastTap = 0;
           videoMask.addEventListener('click', (e) => {
             const currentTime = new Date().getTime();
             const tapLength = currentTime - lastTap;
+            
             if (tapLength < 300 && tapLength > 0) {
               e.preventDefault();
               if (!btnLike.classList.contains('is-liked')) btnLike.click();
               bigHeart.classList.remove('animate');
               void bigHeart.offsetWidth;
               bigHeart.classList.add('animate');
+              
+              if (video.paused && video.src) {
+                video.dataset.userPaused = ''; 
+                video.play().catch(()=>{});
+                pauseIcon.classList.remove('visible');
+              }
+            } else {
+              setTimeout(() => {
+                const currentTimeAfterDelay = new Date().getTime();
+                if (currentTimeAfterDelay - currentTime > 250) {
+                  if (video.paused) {
+                    video.dataset.userPaused = ''; 
+                    video.play().catch(()=>{});
+                    pauseIcon.classList.remove('visible');
+                  } else {
+                    video.dataset.userPaused = 'true'; 
+                    video.pause();
+                    pauseIcon.classList.add('visible'); // Показываем иконку
+                  }
+                }
+              }, 250);
             }
             lastTap = currentTime;
           });
 
-          // Свайп вверх (Открытие описания на мобильном)
-          let touchStart = 0;
-          videoMask.addEventListener('touchstart', (e) => { touchStart = e.changedTouches[0].screenY; }, {passive: true});
-          videoMask.addEventListener('touchend', (e) => {
-            const touchEnd = e.changedTouches[0].screenY;
-            if (touchStart - touchEnd > 50) {
-              descSheet.classList.add('is-open');
-              backdrop.classList.add('is-visible');
-              if (video) video.pause();
-            }
-          }, {passive: true});
-
-          // Кнопка Стрелочка внизу (Описание на ПК)
           btnDescOpen.addEventListener('click', (e) => {
             e.stopPropagation();
             descSheet.classList.add('is-open');
             backdrop.classList.add('is-visible');
-            if (video) video.pause();
+            if (video && video.src) video.pause();
           });
 
-          // Комментарии
           btnComment.addEventListener('click', (e) => {
             e.stopPropagation();
             commentsSheet.classList.add('is-open');
             backdrop.classList.add('is-visible');
-            if (video) video.pause();
+            if (video && video.src) video.pause();
           });
 
-          // Поделиться (Шторка)
           btnShare.addEventListener('click', (e) => {
             e.stopPropagation();
             shareSheet.classList.add('is-open');
             backdrop.classList.add('is-visible');
-            if (video) video.pause();
+            if (video && video.src) video.pause();
           });
 
-          // Ссылки для шаринга
           const btnTg = slide.querySelector('.btn-tg');
           const btnMax = slide.querySelector('.btn-max');
           const btnCopy = slide.querySelector('.btn-copy');
@@ -195,7 +222,6 @@ const title = "Rechman OS — Лента возможностей";
           }
         });
 
-        // --- 3. ЛОГИКА БЛЮРА И ПЕРЕТАСКИВАНИЯ ---
         if (!isMobile) {
           let ticking = false;
           const updateActiveSlide = () => {
@@ -203,6 +229,7 @@ const title = "Rechman OS — Лента возможностей";
             const feedCenter = feedRect.left + feedRect.width / 2;
             let closestSlide = null;
             let minDistance = Infinity;
+            let closestIndex = -1;
 
             for (let i = 0; i < slides.length; i++) {
               const slide = slides[i];
@@ -212,11 +239,18 @@ const title = "Rechman OS — Лента возможностей";
               if (distance < minDistance) {
                 minDistance = distance;
                 closestSlide = slide;
+                closestIndex = i;
               }
             }
 
             for (let i = 0; i < slides.length; i++) slides[i].classList.remove('is-active');
-            if (closestSlide !== null) closestSlide.classList.add('is-active');
+            if (closestSlide !== null) {
+              closestSlide.classList.add('is-active');
+              if (closestIndex !== -1 && closestIndex !== currentActiveIndex) {
+                currentActiveIndex = closestIndex;
+                manageVideos(currentActiveIndex);
+              }
+            }
             ticking = false;
           };
 
@@ -228,13 +262,12 @@ const title = "Rechman OS — Лента возможностей";
           });
           setTimeout(updateActiveSlide, 500);
 
-          // ПЕРЕТАСКИВАНИЕ МЫШКОЙ
           let isDown = false;
           let startX = 0;
           let scrollLeft = 0;
 
           feed.addEventListener('mousedown', (e) => {
-            if (e.target.closest('.action-btn') || e.target.closest('.bottom-sheet') || e.target.closest('.btn-desc-open')) return;
+            if (e.target.closest('.action-btn') || e.target.closest('.bottom-sheet') || e.target.closest('.btn-desc-open') || e.target.closest('.btn-contact')) return;
             if (e.button !== 0) return; 
             isDown = true;
             feed.classList.add('active-drag');
